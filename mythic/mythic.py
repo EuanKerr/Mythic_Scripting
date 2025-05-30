@@ -585,6 +585,7 @@ async def issue_task(
         is_interactive_task: bool = False,
         interactive_task_type: int = None,
         parent_task_id: int = None,
+        payload_type: str = None,
 ) -> dict:
     """
     Create a new task within Mythic for a specific callback.
@@ -611,6 +612,7 @@ async def issue_task(
             "parent_task_id": parent_task_id,
             "tasking_location": "command_line" if isinstance(parameters, str) else "scripting",
             "files": file_ids,
+            "payload_type": payload_type
         },
     )
     if submission_status["createTask"]["status"] == "success":
@@ -672,6 +674,7 @@ async def issue_task_all_active_callbacks(
         mythic: mythic_classes.Mythic,
         command_name: str,
         parameters: Union[str, dict],
+        payload_type: str = None,
 ) -> List[dict]:
     """
     Create a new task within Mythic for all currently active callbacks.
@@ -708,6 +711,7 @@ async def issue_task_all_active_callbacks(
                 "callback_id": callback["display_id"],
                 "command": command_name,
                 "params": parameter_string,
+                "payload_type": payload_type,
                 "tasking_location": "command_line"
                 if isinstance(parameters, str)
                 else "scripting",
@@ -725,6 +729,7 @@ async def issue_task_and_waitfor_task_output(
         callback_display_id: int,
         token_id: int = None,
         timeout: int = None,
+        payload_type: str = None,
 ) -> bytes:
     task = await issue_task(
         mythic=mythic,
@@ -734,6 +739,7 @@ async def issue_task_and_waitfor_task_output(
         token_id=token_id,
         wait_for_complete=True,
         timeout=timeout,
+        payload_type=payload_type
     )
     if "display_id" not in task or task["display_id"] is None:
         raise Exception("Failed to create task")
@@ -2788,7 +2794,7 @@ async def get_command_parameter_options(mythic: mythic_classes.Mythic, command_n
             elif param['type'] == "Number":
                 example_call[param['cli_name']] = param['default_value']
             elif param['type'] == "Array":
-                example_call[param['cli_name']] = param['default_value']
+                example_call[param['cli_name']] = json.loads(param['default_value'])
             elif param['type'] == "CredentialJson":
                 output += f"\t\t\tThis expects a dictionary of credential material\n"
                 example_call[param['cli_name']] = {
