@@ -63,6 +63,7 @@ async def get_http_transport(mythic: mythic_classes.Mythic) -> AIOHTTPTransport:
     transport = AIOHTTPTransport(
         url=f"{mythic.http}{mythic.server_ip}:{mythic.server_port}/graphql/",
         headers=get_headers(mythic),
+        ssl=False
     )
     return transport
 
