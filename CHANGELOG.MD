@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.10] - 2025-10-10
+
+### Changed
+
+- Updated auth failures to bail out faster
+- Removed command-specific checks in payload creation since they live in the server
+
 ## [0.2.9] - 2025-10-08
 
 ### Changed

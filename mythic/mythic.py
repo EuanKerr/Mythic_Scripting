@@ -67,6 +67,10 @@ async def login(
         )
         try:
             response = await mythic_utilities.http_post(mythic=mythic, url=url, data=data)
+            if 'error' in response and response['error'] != "":
+                raise Exception(response['error'])
+            if 'access_token' not in response:
+                raise Exception("failed to log in, no access_token")
             mythic.access_token = (
                 response["access_token"] if "access_token" in response else None
             )
@@ -967,34 +971,7 @@ async def create_payload(
         initial_commands = await get_all_commands_for_payloadtype(
             mythic=mythic, payload_type_name=payload_type_name
         )
-        for c in initial_commands:
-            try:
-                attributes = c["attributes"]
-                passes_all_restrictions = True
-                if "filter_by_build_parameter" in attributes:
-                    # check if the command is allowed by build parameter restrictions
-                    for build_param in create_payload_dict["build_parameters"]:
-                        if (
-                                build_param["name"] in attributes["filter_by_build_parameter"]
-                                and attributes["filter_by_build_parameter"]
-                                != build_param["value"]
-                        ):
-                            passes_all_restrictions = False
-                if "load_only" in attributes and attributes["load_only"]:
-                    passes_all_restrictions = False
-                # check if the command is allowed by supported_os
-                if (
-                        len(attributes["supported_os"]) != 0
-                        and operating_system not in attributes["supported_os"]
-                ):
-                    passes_all_restrictions = False
-                if passes_all_restrictions or (
-                        "builtin" in attributes and attributes["builtin"]
-                ):
-                    create_payload_dict["commands"].append(c["cmd"])
-            except Exception as e:
-                print(f"[-] Error trying to parse command information: {e}")
-                pass
+        create_payload_dict["commands"] = [c['cmd'] for c in initial_commands]
     payload = await mythic_utilities.graphql_post(
         mythic=mythic,
         gql_query=graphql_queries.create_payload,
