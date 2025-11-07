@@ -1,7 +1,7 @@
 import base64
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import AsyncGenerator, List, Union
 import asyncio
 
@@ -222,7 +222,7 @@ async def subscribe_new_callbacks(
         }}
         {graphql_queries.callback_fragment if custom_return_attributes is None else ''}
         """
-        variables = {"now": str(datetime.utcnow()), "batch_size": batch_size}
+        variables = {"now": str(datetime.now(timezone.utc)), "batch_size": batch_size}
         async for result in mythic_utilities.graphql_subscription(
                 mythic=mythic, query=subscription, variables=variables, timeout=timeout
         ):
@@ -377,7 +377,7 @@ async def subscribe_new_tasks(
             {graphql_queries.task_fragment if custom_return_attributes is None else ''}
             """
             variables = {
-                "now": str(datetime.utcnow()),
+                "now": str(datetime.now(timezone.utc)),
                 "batch_size": batch_size,
                 "callback_display_id": callback_display_id,
             }
@@ -391,7 +391,7 @@ async def subscribe_new_tasks(
             {graphql_queries.task_fragment if custom_return_attributes is None else ''}
             """
             variables = {
-                "now": str(datetime.utcnow()),
+                "now": str(datetime.now(timezone.utc)),
                 "batch_size": batch_size,
             }
         try:
@@ -436,7 +436,7 @@ async def subscribe_new_tasks_and_updates(
             {graphql_queries.task_fragment if custom_return_attributes is None else ''}
             """
             variables = {
-                "now": str(datetime.utcnow()),
+                "now": str(datetime.now(timezone.utc)),
                 "batch_size": batch_size,
                 "callback_display_id": callback_display_id,
             }
@@ -450,7 +450,7 @@ async def subscribe_new_tasks_and_updates(
             {graphql_queries.task_fragment if custom_return_attributes is None else ''}
             """
             variables = {
-                "now": str(datetime.utcnow()),
+                "now": str(datetime.now(timezone.utc)),
                 "batch_size": batch_size,
             }
         try:
@@ -824,7 +824,7 @@ async def subscribe_new_filebrowser(
     try:
         async for output in mythic_utilities.graphql_subscription(
                 mythic=mythic, query=process_query,
-                variables={"host": host_search, "batch_size": batch_size, "now": str(datetime.utcnow())},
+                variables={"host": host_search, "batch_size": batch_size, "now": str(datetime.now(timezone.utc))},
                 timeout=timeout
         ):
             yield output["mythictree_stream"]
@@ -1389,7 +1389,7 @@ async def subscribe_new_task_output(
     {graphql_queries.task_output_fragment if custom_return_attributes is None else ''}
     """
 
-    latest_time = str(datetime.utcnow())
+    latest_time = str(datetime.now(timezone.utc))
     while True:
         variables = {"now": latest_time, "batch_size": batch_size}
         try:
@@ -1711,7 +1711,7 @@ async def subscribe_new_downloaded_files(mythic: mythic_classes.Mythic,
     try:
         async for result in mythic_utilities.graphql_subscription(
                 mythic=mythic, query=file_query, timeout=timeout,
-                variables={"batch_size": batch_size, "now": str(datetime.utcnow())}
+                variables={"batch_size": batch_size, "now": str(datetime.now(timezone.utc))}
         ):
             yield result["filemeta_stream"]
     except asyncio.TimeoutError:
@@ -2190,7 +2190,7 @@ async def subscribe_new_processes(
     try:
         async for output in mythic_utilities.graphql_subscription(
                 mythic=mythic, query=process_query,
-                variables={"host": host_search, "batch_size": batch_size, "now": str(datetime.utcnow())},
+                variables={"host": host_search, "batch_size": batch_size, "now": str(datetime.now(timezone.utc))},
                 timeout=timeout
         ):
             yield output["mythictree_stream"]
